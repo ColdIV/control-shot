@@ -10,4 +10,25 @@ the goal is to survive as long as possible
 before you fire your first shot, you should to position yourself
 (maybe add some creative map, obstacles?)
 
+- spawns
+    create a set of spawns at which the enemies can appear
+- ais
+    create multiple ais which control the enemies
+    (differntiate with different colors?)
+    examples:
+        - ai that tries to tackle the player
+        - ai that comes close but stops at a distance of x and shoots at the player
+        - ai that shoots infront of the player
+        - ai that only aims for the body of the player
+        - ai that spawns close to the player
+- sounds
+    create sounds for the game
+- map / obstacles / (spawns)
+    generate a map so that you have a slightly different game every time you play
+- score
+    increase score by killing enemies, surviving over time and getting combo kills 
+    (shooting players directly after each other, Xms after taking over control, ...)
+    - you can chain kills (you shoot 3 times, first shot hits, you take over, 
+      then 2nd shot hits, you take over, then 3rd shot hits, you take over)
+
 # idea 2
