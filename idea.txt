@@ -1,9 +1,9 @@
 # idea 1
 top down shooter
-when you shoot someone you lose control over your charakter and
+when you shoot someone you lose control over your character and
 gain control of the enemy you shot
 when you shoot someone else you, again, switch control
-if you leave the body of someone you shot, the charakter dies
+if you leave the body of someone you shot, the character dies
 so if you shoot yourself to get back, you cannot shoot anyone, or you die
 you have one live (both your body and your "soul" share one)
 the goal is to survive as long as possible

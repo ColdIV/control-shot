@@ -1,9 +1,10 @@
 local Class = require('libs.Class')
 local Menu = require('libs.Menu')
+local Character = require('Character')
 
 local Game = Class({
-	title = 'Game Template',
-	author = 'coldiv.itch.io',
+	title = 'Soul Shot',
+	author = '',
     width = '960',
     height = '540',
     flags = {resizable=false, vsync=false},
@@ -39,8 +40,7 @@ function Game:load()
 	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Menu', gameWidth = self.width, gameHeight = self.height, author = self.author})
     self.menu:setColorText(0, 0, 0, 1)
     self.menu:setColorBackground(1, 1, 1, 1)
-    self.menu:addElement('Start', function() 
-		print('Start clicked')
+    self.menu:addElement('Start', function()
 		self.running = true
 		self.menu:hide() 
 	end)
@@ -48,7 +48,10 @@ function Game:load()
     self.menu:addElement('Hide Menu', function() self.menu:hide() end)
     self.menu:addElement('Nothing', function() print('') end)
     self.menu:addElement('Quit', function() self.quitGameMenu:show() end)
-    self.menu:show()
+	self.menu:show()
+	
+	-- game
+	self.hero = Character:new({control = 'player', x = self.width / 2 - Character.width / 2, y = self.height / 2 - Character.height /2})
 	
 end
 
@@ -89,6 +92,13 @@ function Game:draw()
         self.menu:draw()
 	else
 		-- draw game
+
+		-- draw hero
+		love.graphics.setColor({0, 1, 0})
+		love.graphics.rectangle("line", self.hero.x, self.hero.y, self.hero.width, self.hero.height)
+		love.graphics.setColor({1, 1, 1})
+		love.graphics.rectangle("fill", self.hero.x + 2, self.hero.y + 2, self.hero.width - 4, self.hero.height - 4)
+
     end
 	
 	love.graphics.pop()
