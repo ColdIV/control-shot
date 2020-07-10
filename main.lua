@@ -40,3 +40,7 @@ function love.keypressed(key, scancode, isrepeat)
 		game:keyPressed(key, scancode, isrepeat)
 	end
 end
+
+function love.keyreleased(key)
+	game:keyReleased(key)
+ end

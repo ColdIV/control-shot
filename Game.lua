@@ -51,6 +51,7 @@ function Game:load()
 	self.menu:show()
 	
 	-- game
+	self.controls = {0, 0, 0, 0, 0} -- w, a, s, d, space
 	self.hero = Character:new({control = 'player', x = self.width / 2 - Character.width / 2, y = self.height / 2 - Character.height /2})
 	
 end
@@ -63,7 +64,10 @@ function Game:update(dt)
 		self.optionsMenu:update(dt, x, y)
     elseif self.menu:isVisible() then
         self.menu:update(dt, x, y)
-    end
+	end
+	
+	-- controls
+	self.hero:move(self.controls, dt)
 end
 
 function Game:draw()
@@ -139,6 +143,34 @@ function Game:keyPressed(key, scancode, isrepeat)
 		end
 	elseif key == "f11" then
 		self.optionsMenu:renameElement(self:toggleFullscreen())
+	elseif key == "w" then
+		self.controls[1] = 1
+		self.controls[3] = 0
+	elseif key == "a" then
+		self.controls[2] = 1
+		self.controls[4] = 0
+	elseif key == "s" then
+		self.controls[3] = 1
+		self.controls[1] = 0
+	elseif key == "d" then
+		self.controls[4] = 1
+		self.controls[2] = 0
+	elseif key == "space" then
+		self.controls[5] = 1
+	end
+end
+
+function Game:keyReleased(key)
+	if key == "w" then
+		self.controls[1] = 0
+	elseif key == "a" then
+		self.controls[2] = 0
+	elseif key == "s" then
+		self.controls[3] = 0
+	elseif key == "d" then
+		self.controls[4] = 0
+	elseif key == "space" then
+		self.controls[5] = 0
 	end
 end
 
