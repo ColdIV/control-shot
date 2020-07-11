@@ -6,8 +6,8 @@ when you shoot someone else you, again, switch control
 if you leave the body of someone you shot, the character dies
 so if you shoot yourself to get back, you cannot shoot anyone, or you die
 you have one live (both your body and your "soul" share one)
-the goal is to survive as long as possible
-before you fire your first shot, you should to position yourself
+the goal is to survive as long as possible (and shoot foes)
+before you fire your first shot, you should try to position yourself
 (maybe add some creative map, obstacles?)
 
 - spawns
