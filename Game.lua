@@ -54,6 +54,7 @@ function Game:load()
 	self.menu:show()
 	
 	-- game
+	self.firstChange = true
 	self.controls = {0, 0, 0, 0, 0} -- w, a, s, d, space
 	self.hero = Character:new({
 		control = 'player',
@@ -108,8 +109,8 @@ function Game:shoot(x, y, direction, color, control, dt)
     local index = self:createProjectile()
 	self.projectiles[index] = Projectile:new({
 		control = control,
-		x = x,
-		y = y,
+		x = x + Projectile.width / 2 + (Projectile.width * direction[4] * 2) - (Projectile.width * direction[2] * 2),
+		y = y + Projectile.height / 2 + (Projectile.height * direction[3] * 2) - (Projectile.height * direction[1] * 2),
 		color = color
 	})
 
@@ -143,7 +144,7 @@ function Game:update(dt)
 
 	-- update foes
 	for i = 1, #self.foes do
-		if self.foes[i].dead == false and self.control ~= 'player' and self.control ~= 'none' then
+		if self.foes[i].dead == false and self.foes[i].control ~= 'player' and self.foes[i].control ~= 'none' then
 			self.foes[i]:update({0, 0, 1, 1, 1}, tostring(self.width), tostring(self.height), dt)
 
 			-- did foe shoot?
@@ -173,14 +174,38 @@ function Game:update(dt)
 				end
 			else
 				for j = 1, #self.foes do
-					if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
-						-- change control @TODO:
-						print ("change control")
+					if self.foes[j].dead == false and self.foes[j].control ~= 'none' then
+						if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
+							self.foes[j].dead = true
+							self:changeControl(j)
+						end
 					end
 				end
 			end
 		end
 	end
+end
+
+function Game:changeControl(foeIndex)
+	local tmpFoe = {}
+	tmpFoe.x = self.foes[foeIndex].x
+	tmpFoe.y = self.foes[foeIndex].y
+	tmpFoe.cLine = self.foes[foeIndex].cLine
+
+	if self.firstChange then
+		self.firstChange = false
+		self.foes[foeIndex] = Character:new({
+			control = 'none',
+			x = self.hero.x,
+			y = self.hero.y,
+			cLine = self.hero.cLine,
+			cFill = self.hero.cNCFill
+		})
+	end
+
+	self.hero.x = tmpFoe.x
+	self.hero.y = tmpFoe.y
+	self.hero.cLine = tmpFoe.cLine
 end
 
 function Game:over()
