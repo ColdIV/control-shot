@@ -13,7 +13,8 @@ local Character = Class({
     cNCFill = {0.5, 0.5, 0.5}, -- "no control"
     projectileSpeed = 150,
     projectileWidth = 16,
-    projectileHeight = 16
+    projectileHeight = 16,
+    dead = false
 })
 
 function Character:getNewPos(x, y, direction, speed, dt)

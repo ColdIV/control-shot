@@ -14,6 +14,8 @@ local Game = Class({
 	yoffset = 0,
 })
 
+local DEBUG = true
+
 function Game:load()
     love.window.setTitle(self.title)
     love.window.setMode(self.width, self.height, self.flags)
@@ -59,7 +61,32 @@ function Game:load()
 		cLine = {0, 1, 0},
 		cFill = {1, 1, 1}
 	})
-	
+
+	self.foes = {}
+end
+
+function Game:createFoe()
+	self.foes = self.foes or {}
+
+	for i = 1, #self.foes do
+		if self.foes[i].dead == true then
+			return i
+		end
+	end
+
+	table.insert(self.foes, {})
+	return #self.foes
+end
+
+function Game:spawnFoe()
+	local index = self:createFoe()
+	self.foes[index] = Character:new({
+		control = 'ai',
+		x = 50,
+		y = 50,
+		cLine = {1, 0, 0},
+		cFill = {1, 0, 0}
+	})
 end
 
 function Game:update(dt)
@@ -72,8 +99,16 @@ function Game:update(dt)
         self.menu:update(dt, x, y)
 	end
 	
+	-- check if menu is open
+	if self.running == false then return end
+	
 	-- controls
 	self.hero:update(self.controls, tostring(self.width), tostring(self.height), dt)
+	for i = 1, #self.foes do
+		if self.foes[i].dead == false and self.control ~= 'player' then
+			self.foes[i]:update({0, 0, 1, 1, 1}, tostring(self.width), tostring(self.height), dt)
+		end
+	end
 end
 
 function Game:draw()
@@ -105,6 +140,12 @@ function Game:draw()
 
 		-- draw hero
 		self.hero:draw()
+
+		for i = 1, #self.foes do
+			if self.foes[i].dead == false then
+				self.foes[i]:draw()
+			end
+		end
     end
 	
 	love.graphics.pop()
@@ -140,8 +181,10 @@ function Game:keyPressed(key, scancode, isrepeat)
 			self.optionsMenu:hide()
 		elseif self.menu:isVisible() and self.running then
 			self.menu:hide()
+			self.running = true
 		else
 			self.menu:show()
+			self.running = false
 		end
 	elseif key == "f11" then
 		self.optionsMenu:renameElement(self:toggleFullscreen())
@@ -173,6 +216,8 @@ function Game:keyReleased(key)
 		self.controls[4] = 0
 	elseif key == "space" then
 		self.controls[5] = 0
+	elseif key == "q" and DEBUG then
+		self:spawnFoe() -- @TODO: remove, debug only
 	end
 end
 
