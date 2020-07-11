@@ -66,6 +66,7 @@ function Game:load()
 
 	self.foes = {}
 	self.projectiles = {}
+	self.explosions = {}
 end
 
 function Game:createFoe()
@@ -120,6 +121,53 @@ function Game:shoot(x, y, direction, color, control, dt)
 	end
 end
 
+function Game:createExplosion()
+	self.explosions = self.explosions or {}
+
+    for i = 1, #self.explosions do
+        if self.explosions[i].active == false then
+            return i
+        end
+    end
+
+    table.insert(self.explosions, {})
+    return #self.explosions
+end
+
+function Game:explosion(x, y, dt)
+	local directions = {
+		{1, 0, 0, 0, 0},
+		{1, 1, 0, 0, 0},
+		{1, 0, 0, 1, 0},
+		{0, 0, 1, 0, 0},
+		{0, 1, 1, 0, 0},
+		{0, 0, 1, 1, 0},
+		{0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0}
+	}
+
+	local tmpControl = {}
+	local particleSize = Projectile.width / 2
+	for i = 1, #directions do
+		local direction = directions[i]
+		local index = self:createExplosion()
+		self.explosions[index] = Projectile:new({
+			control = tmpControl,
+			width = particleSize,
+			height = particleSize,
+			x = x + particleSize / 2 + (particleSize * direction[4] * 2) - (particleSize * direction[2] * 2),
+			y = y + particleSize / 2 + (particleSize * direction[3] * 2) - (particleSize * direction[1] * 2),
+			color = {1, 1, 0},
+			speed = 200
+		})
+
+		self.explosions[index].direction = {}
+		for i = 1, #direction do
+			self.explosions[index].direction[i] = direction[i]
+		end
+	end
+end
+
 function Game:update(dt)
 	local x, y = self:translateCoords(love.mouse.getPosition())
 	if self.quitGameMenu:isVisible() then
@@ -154,7 +202,7 @@ function Game:update(dt)
 				end
 			end
 
-			-- has the foe defeated the hero?
+			-- has the foe tackled the hero?
 			local contact = self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
 			if contact == true then
 				self:over()
@@ -165,20 +213,68 @@ function Game:update(dt)
 	-- update projectiles
 	for i = 1, #self.projectiles do
 		if self.projectiles[i].active == true then
-			self.projectiles[i]:update(self.width, self.height, dt)
+			if self.projectiles[i]:update(self.width, self.height, dt) == false then
+				self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+			end
 
 			-- collision
 			if self.projectiles[i].control ~= 'player' then
 				if self.projectiles[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height) then
+					self.projectiles[i].active = false
+					self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+
 					self:over()
 				end
 			else
 				for j = 1, #self.foes do
 					if self.foes[j].dead == false and self.foes[j].control ~= 'none' then
 						if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
+							self.projectiles[i].active = false
+							self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+
 							self.foes[j].dead = true
 							self:changeControl(j)
 						end
+					end
+				end
+			end
+		end
+	end
+
+	-- update explosions
+	for i = 1, #self.explosions do
+		if self.explosions[i].active == true then
+			self.explosions[i]:update(self.width, self.height, dt)
+
+			-- collision with other explosions
+			for j = 1, #self.explosions do
+				if i ~= j and self.explosions[i].control ~= self.explosions[j].control then
+					if self.explosions[i]:collision(self.explosions[j].x, self.explosions[j].y, self.explosions[j].width, self.explosions[j].height) then
+						self.explosions[i].active = false
+						self.explosions[j].active = false
+					end
+				end
+			end
+
+			-- collision with hero
+			if self.explosions[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height) then
+				self.explosions[i].active = false
+			end
+
+			-- collision with foes
+			for j = 1, #self.foes do
+				if self.foes[j].dead == false then
+					if self.explosions[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
+						self.explosions[i].active = false
+					end
+				end
+			end
+
+			-- collision with projectiles
+			for j = 1, #self.projectiles do
+				if self.projectiles[j].active == true then
+					if self.explosions[i]:collision(self.projectiles[j].x, self.projectiles[j].y, self.projectiles[j].width, self.projectiles[j].height) then
+						self.explosions[i].active = false
 					end
 				end
 			end
@@ -255,6 +351,13 @@ function Game:draw()
 		for i = 1, #self.projectiles do
 			if self.projectiles[i].active == true then
 				self.projectiles[i]:draw()
+			end
+		end
+
+		-- draw explosions
+		for i = 1, #self.explosions do
+			if self.explosions[i].active == true then
+				self.explosions[i]:draw()
 			end
 		end
     end

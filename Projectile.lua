@@ -20,13 +20,12 @@ end
 function Projectile:update(width, height, dt)
     width = tonumber(width)
     height = tonumber(height)
-    self:move(width, height, dt)
+    return self:move(width, height, dt)
 end
 
 function Projectile:move(width, height, dt)
     local newX, newY = self:getNewPos(self.x, self.y, self.speed, dt)
 
-    -- check map bounds, @TODO: add some sort of explosion on contact?
     if newX > width then self.active = false
     elseif newX < 0 - self.width then self.active = false end
     if newY > height then self.active = false
@@ -34,6 +33,8 @@ function Projectile:move(width, height, dt)
 
     self.x = newX
     self.y = newY
+
+    return self.active
 end
 
 function Projectile:collision(x, y, width, height)
