@@ -62,11 +62,12 @@ function Game:reset()
 
 	self.foes = {}
 	self.ais = {}
-	self.aiKeys = {"ai"}
-	self.ais["ai"] = {
-		control = 'ai',
+	self.aiKeys = {"ai-follow"}
+	self.ais["ai-follow"] = {
+		control = 'ai-follow',
 		cLine = {1, 0, 0},
-		cFill = {1, 0, 0}
+		cFill = {1, 0, 0},
+		speed = 75
 	}
 	self.projectiles = {}
 	self.explosions = {}
@@ -82,6 +83,19 @@ function Game:reset()
 	self.foeSpawn = true
 
 	self.running = true
+end
+
+function Game:aiAct(i)
+	local w, a, s, d, space = 0, 0, 0, 0, 0
+	local foe = self.foes[i]
+	if foe.control == 'ai-follow' then
+		if self.hero.x < foe.x then a = 1
+		elseif self.hero.x > foe.x then d = 1 end
+		if self.hero.y < foe.y then w = 1
+		elseif self.hero.y > foe.y then s = 1 end
+	end
+
+	return {w, a, s, d, space}
 end
 
 function Game:createFoe()
@@ -100,7 +114,7 @@ end
 function Game:spawnFoe(x, y, ai)
 	x = x or 50
 	y = y or 50
-	ai = ai or 'ai'
+	ai = ai or 'ai-follow'
 	local index = self:createFoe()
 	self.foes[index] = Character:new({
 		control = ai,
@@ -241,7 +255,8 @@ function Game:update(dt)
 	-- update foes
 	for i = 1, #self.foes do
 		if self.foes[i].dead == false and self.foes[i].control ~= 'player' and self.foes[i].control ~= 'none' then
-			self.foes[i]:update({0, 0, 1, 1, 1}, tostring(self.width), tostring(self.height), dt)
+			local direction = self:aiAct(i)
+			self.foes[i]:update(direction, tostring(self.width), tostring(self.height), dt)
 
 			-- did foe shoot?
 			if self.foes[i].facing[5] == 1 then
@@ -250,8 +265,15 @@ function Game:update(dt)
 				end
 			end
 
-			-- has the foe tackled the hero?
-			local contact = self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
+			-- has the foe tackled the hero or its body?
+			local contact = false
+			for j = 1, #self.foes do
+				if self.foes[j].control == 'none' then
+					contact = self.foes[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height)
+				end
+			end
+
+			contact = contact or self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
 			if contact == true then
 				self:over()
 			end
@@ -549,8 +571,7 @@ function Game:keyReleased(key)
 	elseif key == "space" then
 		self.controls[5] = 0
 	elseif key == "q" and DEBUG then
-		self:countdown(5, function () self:spawnFoe(150, 300) end, {1, 1, 1, 0.5}, 150, 300)
-		-- self:spawnFoe() -- @TODO: remove, debug only
+		print ("DEBUG")
 	end
 end
 
