@@ -38,6 +38,7 @@ end
 
 function Projectile:collision(x, y, width, height)
     if self.x < x + width and self.x + self.width > x and self.y < y + height and self.y + self.height > y then
+        self.active = false
         return true
     end
 

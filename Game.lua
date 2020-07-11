@@ -154,15 +154,9 @@ function Game:update(dt)
 			end
 
 			-- has the foe defeated the hero?
-			local hit = self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
-			if hit == true then
-				-- game over
-			end
-
-			-- has the hero hit an enemy
-			local switch = self.hero:collision(self.foes[i].x, self.foes[i].y, self.foes[i].width, self.foes[i].height, false)
-			if switch == true then
-				-- take over
+			local contact = self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
+			if contact == true then
+				self:over()
 			end
 		end
 	end
@@ -171,8 +165,28 @@ function Game:update(dt)
 	for i = 1, #self.projectiles do
 		if self.projectiles[i].active == true then
 			self.projectiles[i]:update(self.width, self.height, dt)
+
+			-- collision
+			if self.projectiles[i].control ~= 'player' then
+				if self.projectiles[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height) then
+					self:over()
+				end
+			else
+				for j = 1, #self.foes do
+					if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
+						-- change control @TODO:
+						print ("change control")
+					end
+				end
+			end
 		end
 	end
+end
+
+function Game:over()
+	-- game over @TODO
+	print("game over")
+	self.running = false
 end
 
 function Game:draw()
