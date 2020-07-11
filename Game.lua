@@ -67,7 +67,9 @@ function Game:reset()
 		control = 'ai-follow',
 		cLine = {1, 0, 0},
 		cFill = {1, 0, 0},
-		speed = 75
+		speed = 50,
+		width = 32,
+		height = 32
 	}
 	self.projectiles = {}
 	self.explosions = {}
@@ -81,6 +83,8 @@ function Game:reset()
 
 	self.countdowns = {}
 	self.foeSpawn = true
+	self.spawnAmount = 1
+	self.spawnAmounts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 	self.running = true
 end
@@ -120,6 +124,9 @@ function Game:spawnFoe(x, y, ai)
 		control = ai,
 		cLine = self.ais[ai].cLine,
 		cFill = self.ais[ai].cFill,
+		speed = self.ais[ai].speed,
+		width = self.ais[ai].width,
+		height = self.ais[ai].height,
 		x = x,
 		y = y
 	})
@@ -235,12 +242,15 @@ function Game:update(dt)
 	-- spawns
 	if self.foeSpawn == true then
 		self.foeSpawn = false
-		local x, y = math.random(Character.width, self.width), math.random(Character.height, self.height)
-		local ai = self.aiKeys[math.random(1, #self.aiKeys)]
-		self:countdown(5, function () 
-			self:spawnFoe(x, y, ai)
-			self.foeSpawn = true
-		end, self.ais[ai].cFill, x, y)
+		for i = 1, self.spawnAmount do
+			local x, y = math.random(Character.width, self.width), math.random(Character.height, self.height)
+			local ai = self.aiKeys[math.random(1, #self.aiKeys)]
+			self:countdown(5, function () 
+				self:spawnFoe(x, y, ai)
+				self.foeSpawn = true
+			end, self.ais[ai].cFill, x, y)
+		end
+		self.spawnAmount = self.spawnAmounts[math.random(1, math.min(self.spawnAmount + 1, #self.spawnAmounts))]
 	end
 
 	-- controls
@@ -268,7 +278,7 @@ function Game:update(dt)
 			-- has the foe tackled the hero or its body?
 			local contact = false
 			for j = 1, #self.foes do
-				if self.foes[j].control == 'none' then
+				if self.foes[j].control == 'none' and self.foes[j].dead == false then
 					contact = self.foes[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height)
 				end
 			end
