@@ -552,16 +552,16 @@ function Game:keyPressed(key, scancode, isrepeat)
 		end
 	elseif key == "f11" then
 		self.menu:renameElement(self:toggleFullscreen())
-	elseif key == "w" then
+	elseif key == "w" or key == "up" then
 		self.controls[1] = 1
 		self.controls[3] = 0
-	elseif key == "a" then
+	elseif key == "a" or key == "left" then
 		self.controls[2] = 1
 		self.controls[4] = 0
-	elseif key == "s" then
+	elseif key == "s" or key == "down" then
 		self.controls[3] = 1
 		self.controls[1] = 0
-	elseif key == "d" then
+	elseif key == "d" or key == "right" then
 		self.controls[4] = 1
 		self.controls[2] = 0
 	elseif key == "space" then
@@ -570,13 +570,13 @@ function Game:keyPressed(key, scancode, isrepeat)
 end
 
 function Game:keyReleased(key)
-	if key == "w" then
+	if key == "w" or key == "up" then
 		self.controls[1] = 0
-	elseif key == "a" then
+	elseif key == "a" or key == "left" then
 		self.controls[2] = 0
-	elseif key == "s" then
+	elseif key == "s" or key == "down" then
 		self.controls[3] = 0
-	elseif key == "d" then
+	elseif key == "d" or key == "right" then
 		self.controls[4] = 0
 	elseif key == "space" then
 		self.controls[5] = 0
