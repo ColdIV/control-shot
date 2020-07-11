@@ -1,6 +1,6 @@
 local Class = require('libs.Class')
 
-local Character = Class({shot = false, control = "ai", width = 32, height = 32, speed = 100})
+local Character = Class({shot = false, control = "ai", width = 32, height = 32, speed = 100, cLine = {1, 0, 0}, cFill = {0, 0, 0}})
 
 function Character:move(direction, width, height, dt)
     if direction[5] == 1 then
@@ -18,6 +18,13 @@ function Character:move(direction, width, height, dt)
 
     self.x = newX
     self.y = newY
+end
+
+function Character:draw() 
+    love.graphics.setColor(self.cLine)
+    love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+    love.graphics.setColor(self.cFill)
+    love.graphics.rectangle("fill", self.x + 2, self.y + 2, self.width - 4, self.height - 4)
 end
 
 function Character:shoot(direction, dt)

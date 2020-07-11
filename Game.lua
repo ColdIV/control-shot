@@ -52,7 +52,13 @@ function Game:load()
 	
 	-- game
 	self.controls = {0, 0, 0, 0, 0} -- w, a, s, d, space
-	self.hero = Character:new({control = 'player', x = self.width / 2 - Character.width / 2, y = self.height / 2 - Character.height /2})
+	self.hero = Character:new({
+		control = 'player',
+		x = self.width / 2 - Character.width / 2,
+		y = self.height / 2 - Character.height / 2,
+		cLine = {0, 1, 0},
+		cFill = {1, 1, 1}
+	})
 	
 end
 
@@ -98,11 +104,7 @@ function Game:draw()
 		-- draw game
 
 		-- draw hero
-		love.graphics.setColor({0, 1, 0})
-		love.graphics.rectangle("line", self.hero.x, self.hero.y, self.hero.width, self.hero.height)
-		love.graphics.setColor({1, 1, 1})
-		love.graphics.rectangle("fill", self.hero.x + 2, self.hero.y + 2, self.hero.width - 4, self.hero.height - 4)
-
+		self.hero:draw()
     end
 	
 	love.graphics.pop()
