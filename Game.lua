@@ -73,7 +73,7 @@ function Game:update(dt)
 	end
 	
 	-- controls
-	self.hero:move(self.controls, tostring(self.width), tostring(self.height), dt)
+	self.hero:update(self.controls, tostring(self.width), tostring(self.height), dt)
 end
 
 function Game:draw()
