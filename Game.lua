@@ -44,6 +44,7 @@ function Game:load()
 	self:reset()
 	self.font = love.graphics.newFont(24)
 	self.smallFont = love.graphics.newFont(12)
+	self.bigFont = love.graphics.newFont(60)
 end
 
 function Game:reset()
@@ -350,8 +351,6 @@ function Game:changeControl(foeIndex)
 end
 
 function Game:over()
-	-- game over @TODO
-	print("game over")
 	self.running = false
 	self.resetOnStart = true
 end
@@ -410,6 +409,12 @@ function Game:draw()
 			if self.scoreText[i][2] > 0 then
 				love.graphics.printf(self.scoreText[i][1], self.smallFont, 10 + 10 * i, 10 + 25 * i, self.width)
 			end
+		end
+
+		if self.running == false then
+			love.graphics.setColor({1, 1, 1, 1})
+			love.graphics.printf("Game Over", self.bigFont, 0, self.height / 2 - 60, self.width, "center")
+			love.graphics.printf("Score: " .. tostring(math.floor(self.score)), self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 		end
 	end
 	
