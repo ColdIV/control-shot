@@ -61,6 +61,12 @@ function Game:reset()
 	})
 
 	self.foes = {}
+	self.ais = {}
+	self.ais["ai"] = {
+		control = 'ai',
+		cLine = {1, 0, 0},
+		cFill = {1, 0, 0}
+	}
 	self.projectiles = {}
 	self.explosions = {}
 
@@ -89,16 +95,17 @@ function Game:createFoe()
 	return #self.foes
 end
 
-function Game:spawnFoe(x, y)
+function Game:spawnFoe(x, y, ai)
 	x = x or 50
 	y = y or 50
+	ai = ai or 'ai'
 	local index = self:createFoe()
 	self.foes[index] = Character:new({
-		control = 'ai',
+		control = ai,
+		cLine = self.ais[ai].cLine,
+		cFill = self.ais[ai].cFill,
 		x = x,
-		y = y,
-		cLine = {1, 0, 0},
-		cFill = {1, 0, 0}
+		y = y
 	})
 end
 
