@@ -1,6 +1,7 @@
 local Class = require('libs.Class')
 local Menu = require('libs.Menu')
 local Character = require('Character')
+local Projectile = require('Projectile')
 
 local Game = Class({
 	title = 'Soul Shot',
@@ -63,6 +64,7 @@ function Game:load()
 	})
 
 	self.foes = {}
+	self.projectiles = {}
 end
 
 function Game:createFoe()
@@ -89,6 +91,34 @@ function Game:spawnFoe()
 	})
 end
 
+function Game:createProjectile()
+	self.projectiles = self.projectiles or {}
+
+    for i = 1, #self.projectiles do
+        if self.projectiles[i].active == false then
+            return i
+        end
+    end
+
+    table.insert(self.projectiles, {})
+    return #self.projectiles
+end
+
+function Game:shoot(x, y, direction, color, control, dt)
+    local index = self:createProjectile()
+	self.projectiles[index] = Projectile:new({
+		control = control,
+		x = x,
+		y = y,
+		color = color
+	})
+
+	self.projectiles[index].direction = {}
+	for i = 1, #direction do
+		self.projectiles[index].direction[i] = direction[i]
+	end
+end
+
 function Game:update(dt)
 	local x, y = self:translateCoords(love.mouse.getPosition())
 	if self.quitGameMenu:isVisible() then
@@ -104,9 +134,43 @@ function Game:update(dt)
 	
 	-- controls
 	self.hero:update(self.controls, tostring(self.width), tostring(self.height), dt)
+	-- did hero shoot?
+    if self.controls[5] == 1 then
+        if self.hero:shoot() == true then
+            self:shoot(self.hero.x, self.hero.y, self.hero.facing, self.hero.cFill, self.hero.control, dt)
+        end
+    end
+
+	-- update foes
 	for i = 1, #self.foes do
-		if self.foes[i].dead == false and self.control ~= 'player' then
+		if self.foes[i].dead == false and self.control ~= 'player' and self.control ~= 'none' then
 			self.foes[i]:update({0, 0, 1, 1, 1}, tostring(self.width), tostring(self.height), dt)
+
+			-- did foe shoot?
+			if self.foes[i].facing[5] == 1 then
+				if self.foes[i]:shoot() == true then
+					self:shoot(self.foes[i].x, self.foes[i].y, self.foes[i].facing, self.foes[i].cFill, self.foes[i].control, dt)
+				end
+			end
+
+			-- has the foe defeated the hero?
+			local hit = self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
+			if hit == true then
+				-- game over
+			end
+
+			-- has the hero hit an enemy
+			local switch = self.hero:collision(self.foes[i].x, self.foes[i].y, self.foes[i].width, self.foes[i].height, false)
+			if switch == true then
+				-- take over
+			end
+		end
+	end
+
+	-- update projectiles
+	for i = 1, #self.projectiles do
+		if self.projectiles[i].active == true then
+			self.projectiles[i]:update(self.width, self.height, dt)
 		end
 	end
 end
@@ -141,9 +205,17 @@ function Game:draw()
 		-- draw hero
 		self.hero:draw()
 
+		-- draw foes
 		for i = 1, #self.foes do
 			if self.foes[i].dead == false then
 				self.foes[i]:draw()
+			end
+		end
+
+		-- draw projectiles
+		for i = 1, #self.projectiles do
+			if self.projectiles[i].active == true then
+				self.projectiles[i]:draw()
 			end
 		end
     end
