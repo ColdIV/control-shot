@@ -62,6 +62,7 @@ function Game:reset()
 
 	self.foes = {}
 	self.ais = {}
+	self.aiKeys = {"ai"}
 	self.ais["ai"] = {
 		control = 'ai',
 		cLine = {1, 0, 0},
@@ -78,6 +79,7 @@ function Game:reset()
 	self.scoreBonusText["homesweethome"] = "Home Sweet Home!"
 
 	self.countdowns = {}
+	self.foeSpawn = true
 
 	self.running = true
 end
@@ -214,6 +216,17 @@ function Game:update(dt)
 				self.countdowns[i].active = false
 			end
 		end
+	end
+
+	-- spawns
+	if self.foeSpawn == true then
+		self.foeSpawn = false
+		local x, y = math.random(Character.width, self.width), math.random(Character.height, self.height)
+		local ai = self.aiKeys[math.random(1, #self.aiKeys)]
+		self:countdown(5, function () 
+			self:spawnFoe(x, y, ai)
+			self.foeSpawn = true
+		end, self.ais[ai].cFill, x, y)
 	end
 
 	-- controls
