@@ -55,6 +55,13 @@ function Game:load()
 	self.foes = {}
 	self.projectiles = {}
 	self.explosions = {}
+
+	self.score = 0
+	self.scoreColor = {1, 1, 1, 1}
+	self.scoreText = {}
+	self.scoreTextDuration = 0.5
+	self.font = love.graphics.newFont(24)
+	self.smallFont = love.graphics.newFont(12)
 end
 
 function Game:createFoe()
@@ -165,6 +172,16 @@ function Game:update(dt)
 	-- check if menu is open
 	if self.running == false then return end
 	
+	-- add to score over time
+	self.score = self.score + (1 * dt * 100)
+	for i = 1, #self.scoreText do
+		if self.scoreText[i][2] > 0 then
+			self.scoreText[i][2] = self.scoreText[i][2] - 1 * dt
+		elseif self.scoreText[i][2] < 0 then
+			self.scoreText[i][2] = 0
+		end
+	end
+
 	-- controls
 	self.hero:update(self.controls, tostring(self.width), tostring(self.height), dt)
 	-- did hero shoot?
@@ -266,9 +283,23 @@ function Game:update(dt)
 	end
 end
 
+function Game:addScore(bonus, text)
+	self.score = self.score + bonus
+	for i = 1, #self.scoreText do
+		if self.scoreText[i][2] == 0 then
+			self.scoreText[i] = {text, self.scoreTextDuration}
+			return
+		end
+	end
+
+	table.insert(self.scoreText, {text, self.scoreTextDuration})
+end
+
 function Game:changeControl(foeIndex)
 	if self.lastChange then
+		self:addScore(250, '+250 Suicide :(')
 		self:over()
+		return
 	end
 
 	if self.foes[foeIndex].control == 'none' then
@@ -279,6 +310,15 @@ function Game:changeControl(foeIndex)
 	tmpFoe.x = self.foes[foeIndex].x
 	tmpFoe.y = self.foes[foeIndex].y
 	tmpFoe.cLine = self.foes[foeIndex].cLine
+
+	-- score bonus
+	if self.lastChange then
+		self:addScore(2000, '+2000 Brave!')
+	elseif self.firstChange then
+		self:addScore(1000, '+1000 Good!')
+	else
+		self:addScore(500, '+500')
+	end
 
 	if self.firstChange then
 		self.firstChange = false
@@ -348,7 +388,16 @@ function Game:draw()
 				self.explosions[i]:draw()
 			end
 		end
-    end
+
+		-- draw score
+		love.graphics.setColor(self.scoreColor)
+		love.graphics.printf(math.floor(self.score), self.font, 10, 10, self.width)
+		for i = 1, #self.scoreText do
+			if self.scoreText[i][2] > 0 then
+				love.graphics.printf(self.scoreText[i][1], self.smallFont, 10 + 10 * i, 10 + 25 * i, self.width)
+			end
+		end
+	end
 	
 	love.graphics.pop()
 end
