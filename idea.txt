@@ -12,6 +12,7 @@ before you fire your first shot, you should try to position yourself
 
 - spawns
     create a set of spawns at which the enemies can appear
+    - spawn enemies / obstacles with a countdown
 - ais
     create multiple ais which control the enemies
     (differntiate with different colors?)
@@ -25,6 +26,11 @@ before you fire your first shot, you should try to position yourself
     create sounds for the game
 - map / obstacles / (spawns)
     generate a map so that you have a slightly different game every time you play
+    - obstacles
+        - make obstacles appear (first a blinking square, then solid)
+        - you cannot walk through obstacles
+        - you cannot shoot through obstacles
+        - if you stand under an obstacle while it appears, you die
 - score
     increase score by killing enemies, surviving over time and getting combo kills 
     (shooting players directly after each other, Xms after taking over control, ...)
