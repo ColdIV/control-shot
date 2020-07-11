@@ -30,14 +30,6 @@ function Game:load()
     self.optionsMenu:addElement('Fullscreen', function() self.optionsMenu:renameElement(self:toggleFullscreen()) end)
     self.optionsMenu:addElement('Back', function() self.optionsMenu:hide() end)
 	self.optionsMenu:hide()
-	
-	-- Quit Game Menu
-	self.quitGameMenu = Menu:new({elements = {}, elementIndices = {}, headline = 'Are you sure?', gameWidth = self.width, gameHeight = self.height, author = self.author})
-    self.quitGameMenu:setColorText(0, 0, 0, 1)
-    self.quitGameMenu:setColorBackground(1, 1, 1, 1)
-    self.quitGameMenu:addElement('Quit', function() love.event.quit(0) end)
-    self.quitGameMenu:addElement('Cancel', function() self.quitGameMenu:hide() end)
-	self.quitGameMenu:hide()
     
 	-- Menu
 	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Menu', gameWidth = self.width, gameHeight = self.height, author = self.author})
@@ -48,9 +40,7 @@ function Game:load()
 		self.menu:hide() 
 	end)
     self.menu:addElement('Options', function() self.optionsMenu:show() end)
-    self.menu:addElement('Hide Menu', function() self.menu:hide() end)
-    self.menu:addElement('Nothing', function() print('') end)
-    self.menu:addElement('Quit', function() self.quitGameMenu:show() end)
+    self.menu:addElement('Quit', function() love.event.quit(0) end)
 	self.menu:show()
 	
 	-- game
@@ -171,9 +161,7 @@ end
 
 function Game:update(dt)
 	local x, y = self:translateCoords(love.mouse.getPosition())
-	if self.quitGameMenu:isVisible() then
-		self.quitGameMenu:update(dt, x, y)
-	elseif self.optionsMenu:isVisible() then
+	if self.optionsMenu:isVisible() then
 		self.optionsMenu:update(dt, x, y)
     elseif self.menu:isVisible() then
         self.menu:update(dt, x, y)
@@ -337,9 +325,7 @@ function Game:draw()
 	end
 	
 	-- draw everything
-	if self.quitGameMenu:isVisible() then
-		self.quitGameMenu:draw()
-	elseif self.optionsMenu:isVisible() then
+	if self.optionsMenu:isVisible() then
 		self.optionsMenu:draw()
     elseif self.menu:isVisible() then
         self.menu:draw()
@@ -387,9 +373,7 @@ end
 function Game:onClick(x, y, button)
 	x, y = self:translateCoords(x, y)
 	
-	if self.quitGameMenu:isVisible() then
-		self.quitGameMenu:onClick(x, y, button)
-	elseif self.optionsMenu:isVisible() then
+	if self.optionsMenu:isVisible() then
 		self.optionsMenu:onClick(x, y, button)
     elseif self.menu:isVisible() then
         self.menu:onClick(x, y, button)
@@ -398,9 +382,7 @@ end
 
 function Game:keyPressed(key, scancode, isrepeat)
 	if key == "escape" then
-		if self.quitGameMenu:isVisible() then
-			self.quitGameMenu:hide()
-		elseif self.optionsMenu:isVisible() then
+		if self.optionsMenu:isVisible() then
 			self.optionsMenu:hide()
 		elseif self.menu:isVisible() and self.running then
 			self.menu:hide()
