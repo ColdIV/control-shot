@@ -55,6 +55,7 @@ function Game:load()
 	
 	-- game
 	self.firstChange = true
+	self.lastChange = false
 	self.controls = {0, 0, 0, 0, 0} -- w, a, s, d, space
 	self.hero = Character:new({
 		control = 'player',
@@ -227,7 +228,7 @@ function Game:update(dt)
 				end
 			else
 				for j = 1, #self.foes do
-					if self.foes[j].dead == false and self.foes[j].control ~= 'none' then
+					if self.foes[j].dead == false then
 						if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
 							self.projectiles[i].active = false
 							self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
@@ -283,6 +284,14 @@ function Game:update(dt)
 end
 
 function Game:changeControl(foeIndex)
+	if self.lastChange then
+		self:over()
+	end
+
+	if self.foes[foeIndex].control == 'none' then
+		self.lastChange = true
+	end
+
 	local tmpFoe = {}
 	tmpFoe.x = self.foes[foeIndex].x
 	tmpFoe.y = self.foes[foeIndex].y
