@@ -24,10 +24,15 @@ function Game:load()
     -- workaround, elements={}, elementIndices={} are required here unfortunately
     
 	-- Menu
+	self.firstStart = true
 	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Menu', gameWidth = self.width, gameHeight = self.height, author = self.author})
     self.menu:setColorText(0, 0, 0, 1)
     self.menu:setColorBackground(1, 1, 1, 1)
-    self.menu:addElement('Start', function()
+	self.menu:addElement('Start', function()
+		if self.firstStart then 
+			self.firstStart = false
+			self.menu:renameElement('Start', 'Resume') 
+		end
 		self.running = true
 		self.menu:hide() 
 	end)
