@@ -71,6 +71,8 @@ function Game:reset()
 	self.scoreBonusText = {}
 	self.scoreBonusText["homesweethome"] = "Home Sweet Home!"
 
+	self.countdowns = {}
+
 	self.running = true
 end
 
@@ -87,12 +89,14 @@ function Game:createFoe()
 	return #self.foes
 end
 
-function Game:spawnFoe()
+function Game:spawnFoe(x, y)
+	x = x or 50
+	y = y or 50
 	local index = self:createFoe()
 	self.foes[index] = Character:new({
 		control = 'ai',
-		x = 50,
-		y = 50,
+		x = x,
+		y = y,
 		cLine = {1, 0, 0},
 		cFill = {1, 0, 0}
 	})
@@ -189,6 +193,19 @@ function Game:update(dt)
 			self.scoreText[i][2] = self.scoreText[i][2] - 1 * dt
 		elseif self.scoreText[i][2] < 0 then
 			self.scoreText[i][2] = 0
+		end
+	end
+
+	-- countdowns
+	for i = 1, #self.countdowns do
+		if self.countdowns[i].active == true then
+			if self.countdowns[i].time > 0 then
+				self.countdowns[i].time = self.countdowns[i].time - 1 * dt
+			elseif self.countdowns[i].time < 0 then
+				self.countdowns[i].time = 0
+				self.countdowns[i].func()
+				self.countdowns[i].active = false
+			end
 		end
 	end
 
@@ -291,6 +308,31 @@ function Game:update(dt)
 			end
 		end
 	end
+end
+
+function Game:countdown(time, func, color, x, y)
+	self.countdowns = self.countdowns or {}
+	color = color or {1, 1, 1, 0.5}
+	x = x or -1
+	y = y or -1
+
+	local newCountdown = {
+		time = time,
+		func = func,
+		x = x,
+		y = y,
+		color = color,
+		active = true
+	}
+
+	for i = 1, #self.countdowns do 
+		if self.countdowns[i].time == 0 then
+			self.countdowns[i] = newCountdown
+			return
+		end
+	end
+
+	table.insert(self.countdowns, newCountdown)
 end
 
 function Game:addScore(bonus, text)
@@ -402,6 +444,14 @@ function Game:draw()
 			end
 		end
 
+		-- draw countdowns
+		for i = 1, #self.countdowns do
+			if self.countdowns[i].active == true and self.countdowns[i].x ~= -1 and self.countdowns[i].y ~= -1 then
+				love.graphics.setColor(self.countdowns[i].color)
+				love.graphics.printf(math.floor(self.countdowns[i].time) + 1, self.font, self.countdowns[i].x, self.countdowns[i].y, self.width)
+			end
+		end
+
 		-- draw score
 		love.graphics.setColor(self.scoreColor)
 		love.graphics.printf(math.floor(self.score), self.font, 10, 10, self.width)
@@ -479,7 +529,8 @@ function Game:keyReleased(key)
 	elseif key == "space" then
 		self.controls[5] = 0
 	elseif key == "q" and DEBUG then
-		self:spawnFoe() -- @TODO: remove, debug only
+		self:countdown(5, function () self:spawnFoe(150, 300) end, {1, 1, 1, 0.5}, 150, 300)
+		-- self:spawnFoe() -- @TODO: remove, debug only
 	end
 end
 
