@@ -22,14 +22,6 @@ function Game:load()
     love.window.setMode(self.width, self.height, self.flags)
 
     -- workaround, elements={}, elementIndices={} are required here unfortunately
-	
-	-- Options Menu
-	self.optionsMenu = Menu:new({elements = {}, elementIndices = {}, headline = 'Options', gameWidth = self.width, gameHeight = self.height, author = self.author})
-    self.optionsMenu:setColorText(0, 0, 0, 1)
-    self.optionsMenu:setColorBackground(1, 1, 1, 1)
-    self.optionsMenu:addElement('Fullscreen', function() self.optionsMenu:renameElement(self:toggleFullscreen()) end)
-    self.optionsMenu:addElement('Back', function() self.optionsMenu:hide() end)
-	self.optionsMenu:hide()
     
 	-- Menu
 	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Menu', gameWidth = self.width, gameHeight = self.height, author = self.author})
@@ -39,7 +31,7 @@ function Game:load()
 		self.running = true
 		self.menu:hide() 
 	end)
-    self.menu:addElement('Options', function() self.optionsMenu:show() end)
+    self.menu:addElement('Fullscreen', function() self.menu:renameElement(self:toggleFullscreen()) end)
     self.menu:addElement('Quit', function() love.event.quit(0) end)
 	self.menu:show()
 	
@@ -161,9 +153,7 @@ end
 
 function Game:update(dt)
 	local x, y = self:translateCoords(love.mouse.getPosition())
-	if self.optionsMenu:isVisible() then
-		self.optionsMenu:update(dt, x, y)
-    elseif self.menu:isVisible() then
+	if self.menu:isVisible() then
         self.menu:update(dt, x, y)
 	end
 	
@@ -325,9 +315,7 @@ function Game:draw()
 	end
 	
 	-- draw everything
-	if self.optionsMenu:isVisible() then
-		self.optionsMenu:draw()
-    elseif self.menu:isVisible() then
+	if self.menu:isVisible() then
         self.menu:draw()
 	else
 		-- draw game
@@ -373,18 +361,14 @@ end
 function Game:onClick(x, y, button)
 	x, y = self:translateCoords(x, y)
 	
-	if self.optionsMenu:isVisible() then
-		self.optionsMenu:onClick(x, y, button)
-    elseif self.menu:isVisible() then
+	if self.menu:isVisible() then
         self.menu:onClick(x, y, button)
     end
 end
 
 function Game:keyPressed(key, scancode, isrepeat)
 	if key == "escape" then
-		if self.optionsMenu:isVisible() then
-			self.optionsMenu:hide()
-		elseif self.menu:isVisible() and self.running then
+		if self.menu:isVisible() and self.running then
 			self.menu:hide()
 			self.running = true
 		else
@@ -392,7 +376,7 @@ function Game:keyPressed(key, scancode, isrepeat)
 			self.running = false
 		end
 	elseif key == "f11" then
-		self.optionsMenu:renameElement(self:toggleFullscreen())
+		self.menu:renameElement(self:toggleFullscreen())
 	elseif key == "w" then
 		self.controls[1] = 1
 		self.controls[3] = 0
