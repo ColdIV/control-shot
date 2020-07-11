@@ -21,19 +21,19 @@ function Game:load()
     love.window.setTitle(self.title)
     love.window.setMode(self.width, self.height, self.flags)
 
+	self.resetOnStart = false
     -- workaround, elements={}, elementIndices={} are required here unfortunately
     
 	-- Menu
-	self.firstStart = true
 	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Menu', gameWidth = self.width, gameHeight = self.height, author = self.author})
     self.menu:setColorText(0, 0, 0, 1)
     self.menu:setColorBackground(1, 1, 1, 1)
-	self.menu:addElement('Start', function()
-		if self.firstStart then 
-			self.firstStart = false
-			self.menu:renameElement('Start', 'Resume') 
+	self.menu:addElement('Play', function()
+		if self.resetOnStart then
+			self:reset()
+		else
+			self.running = true
 		end
-		self.running = true
 		self.menu:hide() 
 	end)
     self.menu:addElement('Fullscreen', function() self.menu:renameElement(self:toggleFullscreen()) end)
@@ -41,6 +41,13 @@ function Game:load()
 	self.menu:show()
 	
 	-- game
+	self:reset()
+	self.font = love.graphics.newFont(24)
+	self.smallFont = love.graphics.newFont(12)
+end
+
+function Game:reset()
+	self.resetOnStart = false
 	self.firstChange = true
 	self.lastChange = false
 	self.controls = {0, 0, 0, 0, 0} -- w, a, s, d, space
@@ -60,8 +67,10 @@ function Game:load()
 	self.scoreColor = {1, 1, 1, 1}
 	self.scoreText = {}
 	self.scoreTextDuration = 0.5
-	self.font = love.graphics.newFont(24)
-	self.smallFont = love.graphics.newFont(12)
+	self.scoreBonusText = {}
+	self.scoreBonusText["homesweethome"] = "Home Sweet Home!"
+
+	self.running = true
 end
 
 function Game:createFoe()
@@ -296,14 +305,17 @@ function Game:addScore(bonus, text)
 end
 
 function Game:changeControl(foeIndex)
-	if self.lastChange then
-		self:addScore(250, '+250 Suicide :(')
-		self:over()
-		return
-	end
+	-- if self.lastChange then
+	-- 	self:addScore(250, '+250 Suicide :(')
+	-- 	self:over()
+	-- 	return
+	-- end
 
+	-- suicide prevention ;)
+	local homesweethome = false
 	if self.foes[foeIndex].control == 'none' then
-		self.lastChange = true
+		-- self.lastChange = true
+		homesweethome = true
 	end
 
 	local tmpFoe = {}
@@ -312,10 +324,9 @@ function Game:changeControl(foeIndex)
 	tmpFoe.cLine = self.foes[foeIndex].cLine
 
 	-- score bonus
-	if self.lastChange then
-		self:addScore(2000, '+2000 Brave!')
-	elseif self.firstChange then
-		self:addScore(1000, '+1000 Good!')
+	if homesweethome then
+		self:addScore(1000, '+250 ' .. self.scoreBonusText["homesweethome"])
+		if self.scoreBonusText["homesweethome"] ~= "" then self.scoreBonusText["homesweethome"] =  "" end
 	else
 		self:addScore(500, '+500')
 	end
@@ -331,6 +342,8 @@ function Game:changeControl(foeIndex)
 		})
 	end
 
+	if homesweethome then self.firstChange = true end
+
 	self.hero.x = tmpFoe.x
 	self.hero.y = tmpFoe.y
 	self.hero.cLine = tmpFoe.cLine
@@ -340,6 +353,7 @@ function Game:over()
 	-- game over @TODO
 	print("game over")
 	self.running = false
+	self.resetOnStart = true
 end
 
 function Game:draw()
