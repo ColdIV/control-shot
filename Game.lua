@@ -114,7 +114,10 @@ function Game:reset()
 	self.projectiles = {}
 	self.explosions = {}
 
+	self.score = self.score or 0
+	self.highscore = math.max(0, self.score)
 	self.score = 0
+	self.highscoreColor = {1, 1, 0, 1}
 	self.scoreColor = {1, 1, 1, 1}
 	self.scoreText = {}
 	self.scoreTextDuration = 0.75
@@ -306,6 +309,7 @@ function Game:update(dt)
 			self.scoreText[i][2] = 0
 		end
 	end
+	self.highscore = math.max(self.highscore, self.score)
 
 	-- countdowns
 	for i = 1, #self.countdowns do
@@ -578,7 +582,7 @@ function Game:draw()
 		
 		-- print help
 		love.graphics.setColor({1, 1, 1, 1})
-		love.graphics.printf("Move with W, A, S ,D\nShoot with SPACE\nYou take over the enemy you shot, leaving your shell exposed\n\nIncrease your score to infinity and beyond!\n\n\nNote: Buttons don't work properly in fullscreen!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
+		love.graphics.printf("Move with W, A, S ,D\nShoot with SPACE\nPress R to restart at any time!\nYou take over the enemy you shot, leaving your shell exposed\n\nIncrease your score to infinity and beyond!\n\n\nNote: Buttons don't work properly in fullscreen!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 	else
 		-- draw border
 		love.graphics.setColor(self.hero.cLine)
@@ -619,6 +623,8 @@ function Game:draw()
 		end
 
 		-- draw score
+		love.graphics.setColor(self.highscoreColor)
+		love.graphics.printf(math.floor(self.highscore), self.font, -10, 10, self.width, "right")
 		love.graphics.setColor(self.scoreColor)
 		love.graphics.printf(math.floor(self.score), self.font, 0, 10, self.width, "center")
 		for i = 1, #self.scoreText do
@@ -630,7 +636,7 @@ function Game:draw()
 		if self.running == false then
 			love.graphics.setColor({1, 1, 1, 1})
 			love.graphics.printf("Game Over", self.bigFont, 0, self.height / 2 - 60, self.width, "center")
-			love.graphics.printf("Press [ESC] to get back to the menu", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
+			love.graphics.printf("Highscore: " .. math.floor(self.highscore) .. "\n\nPress [ESC] to get back to the menu", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 		end
 	end
 	
@@ -694,6 +700,10 @@ function Game:keyReleased(key)
 		self.controls[4] = 0
 	elseif key == "space" then
 		self.controls[5] = 0
+	elseif key == "r" then
+		self:reset()
+		self.running = true
+		self.menu:hide() 
 	elseif key == "q" and DEBUG then
 		print ("FPS: " .. love.timer.getFPS())
 	end
