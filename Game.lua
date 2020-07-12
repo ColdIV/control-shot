@@ -20,19 +20,36 @@ local DEBUG = true
 function Game:load()
 	math.randomseed(os.time())
     love.window.setTitle(self.title)
-    love.window.setMode(self.width, self.height, self.flags)
+	love.window.setMode(self.width, self.height, self.flags)
+	
+	-- sounds
+	self.sounds = {}
+	self.sounds.shoot = love.audio.newSource("sounds/shoot.wav", "static")
+	self.sounds.foeShoot = love.audio.newSource("sounds/foeShoot.wav", "static")
+	self.sounds.heroHit = love.audio.newSource("sounds/heroHit.wav", "static")
+	self.sounds.explosion = love.audio.newSource("sounds/explosion.wav", "static")
+	self.sounds.foeHit = love.audio.newSource("sounds/foeHit.wav", "static")
+	self.sounds.switchBack = love.audio.newSource("sounds/switchBack.wav", "static")
+	self.sounds.gamestart = love.audio.newSource("sounds/gamestart.wav", "static")
+	self.sounds.gameover = love.audio.newSource("sounds/gameover.wav", "static")
 
 	self.resetOnStart = false
     -- workaround, elements={}, elementIndices={} are required here unfortunately
     
 	-- Menu
+	self.firstStart = true
 	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Soul Shot', gameWidth = self.width, gameHeight = self.height, author = self.author})
     self.menu:setColorText(0, 0, 0, 1)
     self.menu:setColorBackground(1, 1, 1, 1)
 	self.menu:addElement('Play', function()
 		if self.resetOnStart then
+			self:playSound(self.sounds.gamestart)
 			self:reset()
 		else
+			if self.firstStart == true then
+				self:playSound(self.sounds.gamestart)
+				self.firstStart = false
+			end
 			self.running = true
 		end
 		self.menu:hide() 
@@ -107,6 +124,11 @@ function Game:reset()
 	self.spawnAmounts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 	self.running = true
+end
+
+function Game:playSound(sound)
+	local clone = sound:clone()
+	clone:play()
 end
 
 function Game:aiAct(i)
@@ -313,7 +335,8 @@ function Game:update(dt)
 	self.hero:update(self.controls, tostring(self.width), tostring(self.height), dt)
 	-- did hero shoot?
     if self.controls[5] == 1 then
-        if self.hero:shoot() == true then
+		if self.hero:shoot() == true then
+			self:playSound(self.sounds.shoot)
             self:shoot(self.hero.x, self.hero.y, self.hero.facing, self.hero.cFill, self.hero.control, dt)
         end
     end
@@ -327,6 +350,7 @@ function Game:update(dt)
 			-- did foe shoot?
 			if self.foes[i].facing[5] == 1 then
 				if self.foes[i]:shoot() == true then
+					self:playSound(self.sounds.foeShoot)
 					self:shoot(self.foes[i].x, self.foes[i].y, self.foes[i].facing, self.foes[i].cFill, self.foes[i].control, dt)
 				end
 			end
@@ -341,6 +365,7 @@ function Game:update(dt)
 
 			contact = contact or self.foes[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height)
 			if contact == true then
+				self:playSound(self.sounds.heroHit)
 				self:over()
 			end
 		end
@@ -358,7 +383,7 @@ function Game:update(dt)
 				if self.projectiles[i]:collision(self.hero.x, self.hero.y, self.hero.width, self.hero.height) then
 					self.projectiles[i].active = false
 					self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
-
+					self:playSound(self.sounds.explosion)
 					self:over()
 				end
 			end
@@ -369,12 +394,16 @@ function Game:update(dt)
 						if self.projectiles[i].control ~= 'player' and self.foes[j].control == 'none' then
 							self.projectiles[i].active = false
 							self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
-		
+							self:playSound(self.sounds.explosion)
 							self:over()
 						else
-							self.projectiles[i].active = false
-							self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
-
+							self.projectiles[i].active = false							
+							if self.foes[j].control == 'none' then
+								self:playSound(self.sounds.switchBack)
+							else
+								self:playSound(self.sounds.foeHit)
+								self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+							end
 							self.foes[j].dead = true
 							self:changeControl(j)
 						end
@@ -510,6 +539,7 @@ end
 function Game:over()
 	self.running = false
 	self.resetOnStart = true
+	self:playSound(self.sounds.gameover)
 end
 
 function Game:draw()

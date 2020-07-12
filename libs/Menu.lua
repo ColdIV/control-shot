@@ -17,6 +17,8 @@ local Menu = Class({
     gameHeight = 400,
     nextIndex = 1,
     separator = 10,
+    hoverSound = love.audio.newSource("sounds/hover.wav", "static"),
+    clickSound = love.audio.newSource("sounds/click.wav", "static")
 })
 
 function Menu:update(dt, x, y)
@@ -26,6 +28,10 @@ function Menu:update(dt, x, y)
 
     for i=1, #self.elements, 1 do
         if (self:checkHover(self.elements[i].index, x, y)) then
+            if self.elements[i].hover == false then
+                local clone = self.hoverSound:clone()
+                clone:play()
+            end
             self.elements[i].hover = true
         else
             self.elements[i].hover = false
@@ -106,6 +112,8 @@ function Menu:onClick(x, y, button)
         for i=1, #self.elements, 1 do 
             if self:checkHover(i, x, y) then
                 self.elements[i].func()
+                local clone = self.clickSound:clone()
+                clone:play()
             end
         end
     end
