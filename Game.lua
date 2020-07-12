@@ -243,7 +243,7 @@ function Game:update(dt)
 	if self.foeSpawn == true then
 		self.foeSpawn = false
 		for i = 1, self.spawnAmount do
-			local x, y = math.random(Character.width, self.width), math.random(Character.height, self.height)
+			local x, y = math.random(Character.width, self.width - Character.width), math.random(Character.height, self.height - Character.height)
 			local ai = self.aiKeys[math.random(1, #self.aiKeys)]
 			self:countdown(5, function () 
 				self:spawnFoe(x, y, ai)
@@ -552,16 +552,16 @@ function Game:keyPressed(key, scancode, isrepeat)
 		end
 	elseif key == "f11" then
 		self.menu:renameElement(self:toggleFullscreen())
-	elseif key == "w" or key == "up" then
+	elseif key == "w" then
 		self.controls[1] = 1
 		self.controls[3] = 0
-	elseif key == "a" or key == "left" then
+	elseif key == "a" then
 		self.controls[2] = 1
 		self.controls[4] = 0
-	elseif key == "s" or key == "down" then
+	elseif key == "s" then
 		self.controls[3] = 1
 		self.controls[1] = 0
-	elseif key == "d" or key == "right" then
+	elseif key == "d" then
 		self.controls[4] = 1
 		self.controls[2] = 0
 	elseif key == "space" then
@@ -570,13 +570,13 @@ function Game:keyPressed(key, scancode, isrepeat)
 end
 
 function Game:keyReleased(key)
-	if key == "w" or key == "up" then
+	if key == "w" then
 		self.controls[1] = 0
-	elseif key == "a" or key == "left" then
+	elseif key == "a" then
 		self.controls[2] = 0
-	elseif key == "s" or key == "down" then
+	elseif key == "s" then
 		self.controls[3] = 0
-	elseif key == "d" or key == "right" then
+	elseif key == "d" then
 		self.controls[4] = 0
 	elseif key == "space" then
 		self.controls[5] = 0
