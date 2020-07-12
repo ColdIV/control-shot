@@ -6,8 +6,8 @@ local Projectile = require('Projectile')
 local Game = Class({
 	title = 'Control Shot',
 	author = '',
-    width = '960',
-    height = '540',
+    width = '600',
+    height = '500',
     flags = {resizable=false, vsync=false},
 	running = false,
 	scale = 1,
@@ -569,7 +569,7 @@ function Game:draw()
 		
 		-- print help
 		love.graphics.setColor({1, 1, 1, 1})
-		love.graphics.printf("Move with W, A, S ,D\nShoot with SPACE\nYou take over the enemy you shot, leaving your shell exposed\n\nIncrease your score to infinity and beyond!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
+		love.graphics.printf("Move with W, A, S ,D\nShoot with SPACE\nYou take over the enemy you shot, leaving your shell exposed\n\nIncrease your score to infinity and beyond!\n\n\nNote: Buttons don't work properly in fullscreen!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 	else
 		-- draw border
 		love.graphics.setColor(self.hero.cLine)
