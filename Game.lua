@@ -115,7 +115,8 @@ function Game:reset()
 	self.explosions = {}
 
 	self.score = self.score or 0
-	self.highscore = math.max(0, self.score)
+	self.highscore = self.highscore or 0
+	self.highscore = math.max(self.highscore, self.score)
 	self.score = 0
 	self.highscoreColor = {1, 1, 0, 1}
 	self.scoreColor = {1, 1, 1, 1}
