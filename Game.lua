@@ -31,6 +31,7 @@ function Game:load()
 	self.sounds.heroHit = love.audio.newSource("sounds/heroHit.wav", "static")
 	self.sounds.explosion = love.audio.newSource("sounds/explosion.wav", "static")
 	self.sounds.foeHit = love.audio.newSource("sounds/foeHit.wav", "static")
+	self.sounds.wallHit = love.audio.newSource("sounds/wallHit.wav", "static")
 	self.sounds.switchBack = love.audio.newSource("sounds/switchBack.wav", "static")
 	self.sounds.gamestart = love.audio.newSource("sounds/gamestart.wav", "static")
 	self.sounds.gameover = love.audio.newSource("sounds/gameover.wav", "static")
@@ -378,6 +379,7 @@ function Game:update(dt)
 		if self.projectiles[i].active == true then
 			if self.projectiles[i]:update(self.width, self.height, dt) == false then
 				self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+				self:playSound(self.sounds.wallHit)
 			end
 
 			-- collision
@@ -563,7 +565,11 @@ function Game:draw()
 	
 	-- draw everything
 	if self.menu:isVisible() then
-        self.menu:draw()
+		self.menu:draw()
+		
+		-- print help
+		love.graphics.setColor({1, 1, 1, 1})
+		love.graphics.printf("Move with W, A, S ,D\nShoot with SPACE\nYou take over the enemy you shot, leaving your body exposed\n\nIncrease your score to infinity and beyond!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 	else
 		-- draw game
 
@@ -611,7 +617,7 @@ function Game:draw()
 		if self.running == false then
 			love.graphics.setColor({1, 1, 1, 1})
 			love.graphics.printf("Game Over", self.bigFont, 0, self.height / 2 - 60, self.width, "center")
-			love.graphics.printf("Press [ESC] to get back to the menu!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
+			love.graphics.printf("Press [ESC] to get back to the menu", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 		end
 	end
 	
