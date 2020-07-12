@@ -11,8 +11,8 @@ local Menu = Class({
     height = 50,
     colorText = {1, 1, 1, 1},
     colorBackground = {0, 0, 0, 1},
-    colorHover = {0, 0, 0, 1},
-    backgroundColor = {0.91, 0.66, 0.49, 1},
+    colorHover = {0, 1, 0, 1},
+    backgroundColor = {0, 0, 0, 1},
     gameWidth = 900,
     gameHeight = 400,
     nextIndex = 1,
@@ -48,7 +48,8 @@ function Menu:draw()
     love.graphics.rectangle('fill', 0, 0, self.gameWidth, self.gameHeight)
 
     -- draw headline
-    love.graphics.setColor(self:getColorText())
+    -- love.graphics.setColor(self:getColorText())
+    love.graphics.setColor({1, 1, 1})
     posX = ((self.gameWidth - self.font:getWidth(self.headline)) / 2)
     love.graphics.printf(self.headline, self.font, posX, posY, self.gameWidth)
 	
@@ -59,7 +60,7 @@ function Menu:draw()
     -- draw buttons
     for i=1, #self.elements, 1 do
         love.graphics.setColor(self:getColorBackground())
-        love.graphics.rectangle('fill', posX, posY, self.width, self.height)
+        love.graphics.rectangle('fill', posX + 2, posY + 2, self.width - 4, self.height - 4)
         tmpX = ((self.width - self.font:getWidth(self.elements[i].label)) / 2) + posX
         tmpY = ((self.height - self.font:getHeight()) / 2) + posY + 3 -- no clue why the + 3 is needed. @todo future me.
         love.graphics.setColor(self:getColorText())

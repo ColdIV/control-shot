@@ -25,7 +25,7 @@ function Game:load()
     -- workaround, elements={}, elementIndices={} are required here unfortunately
     
 	-- Menu
-	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Menu', gameWidth = self.width, gameHeight = self.height, author = self.author})
+	self.menu = Menu:new({elements = {}, elementIndices = {}, headline = 'Soul Shot', gameWidth = self.width, gameHeight = self.height, author = self.author})
     self.menu:setColorText(0, 0, 0, 1)
     self.menu:setColorBackground(1, 1, 1, 1)
 	self.menu:addElement('Play', function()
