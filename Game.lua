@@ -21,6 +21,8 @@ function Game:load()
 	math.randomseed(os.time())
     love.window.setTitle(self.title)
 	love.window.setMode(self.width, self.height, self.flags)
+	local icon = love.image.newImageData("icon.png")
+	love.window.setIcon(icon)
 	
 	-- sounds
 	self.sounds = {}
