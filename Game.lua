@@ -18,6 +18,7 @@ local Game = Class({
 local DEBUG = true
 
 function Game:load()
+	math.randomseed(os.time())
     love.window.setTitle(self.title)
     love.window.setMode(self.width, self.height, self.flags)
 
@@ -62,14 +63,33 @@ function Game:reset()
 
 	self.foes = {}
 	self.ais = {}
-	self.aiKeys = {"ai-follow"}
+	self.aiKeys = {"ai-follow", "ai-turret", "ai-patrol"}
 	self.ais["ai-follow"] = {
 		control = 'ai-follow',
 		cLine = {1, 0, 0},
 		cFill = {1, 0, 0},
 		speed = 50,
 		width = 32,
-		height = 32
+		height = 32,
+		shotMaxCD = 0.25
+	}
+	self.ais["ai-turret"] = {
+		control = 'ai-turret',
+		cLine = {0.75, 0.5, 0.12},
+		cFill = {0.75, 0.5, 0.12},
+		speed = 0,
+		width = 44,
+		height = 44,
+		shotMaxCD = 0.75
+	}
+	self.ais["ai-patrol"] = {
+		control = 'ai-patrol',
+		cLine = {0.25, 0.5, 0.75},
+		cFill = {0.25, 0.5, 0.75},
+		speed = 50,
+		width = 32,
+		height = 32,
+		shotMaxCD = 1
 	}
 	self.projectiles = {}
 	self.explosions = {}
@@ -97,6 +117,41 @@ function Game:aiAct(i)
 		elseif self.hero.x > foe.x then d = 1 end
 		if self.hero.y < foe.y then w = 1
 		elseif self.hero.y > foe.y then s = 1 end
+	elseif foe.control == 'ai-turret' then
+		if self.hero.x < foe.x - foe.width then a = 1
+		elseif self.hero.x > foe.x + foe.width then d = 1 end
+		if self.hero.y < foe.y - foe.height then w = 1
+		elseif self.hero.y > foe.y + foe.height then s = 1 end
+		space = 1
+	elseif foe.control == 'ai-patrol' then
+		if math.sqrt(math.pow(self.hero.x - foe.x, 2) + math.pow(self.hero.y - foe.y, 2)) < self.width / 4 then
+			if self.hero.x < foe.x - foe.width then a = 1
+			elseif self.hero.x > foe.x + foe.width then d = 1 end
+			if self.hero.y < foe.y - foe.height then w = 1
+			elseif self.hero.y > foe.y + foe.height then s = 1 end
+			space = 1
+		else
+			foe.direction = foe.direction or {0, 0, 0, 0, 0}
+
+			if foe.x <= foe.width * 3 and foe.y >= self.height - foe.height * 3 then w = 1
+			elseif foe.x >= self.width - foe.width * 3 and foe.y >= self.height - foe.height * 3 then a = 1
+			elseif foe.x >= self.width - foe.width * 3 and foe.y <= foe.height * 3 then s = 1
+			elseif foe.x <= foe.width * 3 and foe.y <= foe.height * 3 then d = 1
+			elseif foe.direction[1] == 0 and foe.direction[2] == 0 and foe.direction[3] == 0 and foe.direction[4] == 0 then
+				-- find close corner
+				local sa = math.sqrt(math.pow(0 - foe.x, 2) + math.pow(self.height - foe.y, 2))
+				local sd = math.sqrt(math.pow(self.width - foe.x, 2) + math.pow(self.height - foe.y, 2))
+				local wd = math.sqrt(math.pow(self.width - foe.x, 2) + math.pow(0 - foe.y, 2))
+				local wa = math.sqrt(math.pow(0 - foe.x, 2) + math.pow(0 - foe.y, 2))
+				local closest = math.min(math.min(wa, wd), math.min(sd, sa))
+				if closest == wa then w = 1 a = 1
+				elseif closest == wd then w = 1 a = 1
+				elseif closest == sd then s = 1 d = 1
+				elseif closest == sa then s = 1 a = 1 end
+			else return foe.direction end
+
+			self.foes[i].direction = {w, a, s, d, space}
+		end
 	end
 
 	return {w, a, s, d, space}
@@ -128,7 +183,8 @@ function Game:spawnFoe(x, y, ai)
 		width = self.ais[ai].width,
 		height = self.ais[ai].height,
 		x = x,
-		y = y
+		y = y,
+		shotMaxCD = self.ais[ai].shotMaxCD
 	})
 end
 
@@ -305,10 +361,17 @@ function Game:update(dt)
 
 					self:over()
 				end
-			else
-				for j = 1, #self.foes do
-					if self.foes[j].dead == false then
-						if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
+			end
+
+			for j = 1, #self.foes do
+				if self.foes[j].dead == false and (self.projectiles[i].control == 'player' or self.foes[j].control == 'none') then
+					if self.projectiles[i]:collision(self.foes[j].x, self.foes[j].y, self.foes[j].width, self.foes[j].height) then
+						if self.projectiles[i].control ~= 'player' and self.foes[j].control == 'none' then
+							self.projectiles[i].active = false
+							self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+		
+							self:over()
+						else
 							self.projectiles[i].active = false
 							self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
 
