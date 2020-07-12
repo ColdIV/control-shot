@@ -53,8 +53,8 @@ function Game:load()
 				self:playSound(self.sounds.gamestart)
 				self.firstStart = false
 			end
-			self.running = true
 		end
+		self.running = true
 		self.menu:hide() 
 	end)
     self.menu:addElement('Fullscreen', function() self.menu:renameElement(self:toggleFullscreen()) end)
@@ -126,7 +126,7 @@ function Game:reset()
 	self.spawnAmount = 1
 	self.spawnAmounts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
-	self.running = true
+	-- self.running = true
 end
 
 function Game:playSound(sound)
@@ -571,6 +571,10 @@ function Game:draw()
 		love.graphics.setColor({1, 1, 1, 1})
 		love.graphics.printf("Move with W, A, S ,D\nShoot with SPACE\nYou take over the enemy you shot, leaving your body exposed\n\nIncrease your score to infinity and beyond!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 	else
+		-- draw border
+		love.graphics.setColor(self.hero.cLine)
+		love.graphics.rectangle("line", 0, 0, self.width, self.height)
+
 		-- draw game
 
 		-- draw hero
