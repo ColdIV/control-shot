@@ -78,9 +78,9 @@ function Game:reset()
 		cLine = {0.75, 0.5, 0.12},
 		cFill = {0.75, 0.5, 0.12},
 		speed = 0,
-		width = 44,
-		height = 44,
-		shotMaxCD = 0.75
+		width = 32,
+		height = 32,
+		shotMaxCD = 1.5
 	}
 	self.ais["ai-patrol"] = {
 		control = 'ai-patrol',
@@ -97,7 +97,7 @@ function Game:reset()
 	self.score = 0
 	self.scoreColor = {1, 1, 1, 1}
 	self.scoreText = {}
-	self.scoreTextDuration = 0.5
+	self.scoreTextDuration = 0.75
 	self.scoreBonusText = {}
 	self.scoreBonusText["homesweethome"] = "Home Sweet Home!"
 
@@ -569,17 +569,17 @@ function Game:draw()
 
 		-- draw score
 		love.graphics.setColor(self.scoreColor)
-		love.graphics.printf(math.floor(self.score), self.font, 10, 10, self.width)
+		love.graphics.printf(math.floor(self.score), self.font, 0, 10, self.width, "center")
 		for i = 1, #self.scoreText do
 			if self.scoreText[i][2] > 0 then
-				love.graphics.printf(self.scoreText[i][1], self.smallFont, 10 + 10 * i, 10 + 25 * i, self.width)
+				love.graphics.printf(self.scoreText[i][1], self.smallFont, 0 + 10 * i, 10 + 25 * i, self.width, "center")
 			end
 		end
 
 		if self.running == false then
 			love.graphics.setColor({1, 1, 1, 1})
 			love.graphics.printf("Game Over", self.bigFont, 0, self.height / 2 - 60, self.width, "center")
-			love.graphics.printf("Score: " .. tostring(math.floor(self.score)), self.smallFont, 0, self.height / 2 + 20, self.width, "center")
+			love.graphics.printf("Press [ESC] to get back to the menu!", self.smallFont, 0, self.height / 2 + 20, self.width, "center")
 		end
 	end
 	
