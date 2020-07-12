@@ -686,7 +686,7 @@ function Game:keyReleased(key)
 	elseif key == "space" then
 		self.controls[5] = 0
 	elseif key == "q" and DEBUG then
-		print ("DEBUG")
+		print ("FPS: " .. love.timer.getFPS())
 	end
 end
 

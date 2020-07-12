@@ -11,6 +11,7 @@ function love.draw()
 end
 
 function love.update(dt)
+	if dt < 1/120 then love.timer.sleep(1/120-dt) end
 	game:update(dt)
 end
 
