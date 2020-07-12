@@ -405,6 +405,15 @@ function Game:update(dt)
 							if self.foes[j].control == 'none' then
 								self:playSound(self.sounds.switchBack)
 							else
+								for k = 1, #self.foes do
+									if k ~= j and self.foes[k].dead == false and self.foes[k].control ~= 'none' then
+										if self.foes[j]:collision(self.foes[k].x, self.foes[k].y, self.foes[k].width, self.foes[k].height) then
+											self.foes[k].dead = true
+											self:playSound(self.sounds.foeHit)
+											self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
+										end
+									end
+								end
 								self:playSound(self.sounds.foeHit)
 								self:explosion(self.projectiles[i].x, self.projectiles[i].y, dt)
 							end
