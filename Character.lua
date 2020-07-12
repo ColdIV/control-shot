@@ -2,7 +2,7 @@ local Class = require('libs.Class')
 
 local Character = Class({
     shot = false,
-    shotCD = 0,
+    shotCD = 0.5,
     shotMaxCD = 0.25,
     control = "ai",
     width = 32,
